@@ -1,0 +1,46 @@
+name: YT Downloader
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: 'Paste the YouTube URL here'
+        required: true
+        type: string
+      resolution:
+        description: 'Select Video Resolution'
+        required: true
+        default: '1080p'
+        type: choice
+        options:
+          - '4K (2160p)'
+          - '1080p'
+          - '720p'
+          - '144p'
+
+jobs:
+  download:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Download Video
+      run: |
+        # Download yt-dlp executable
+        Invoke-WebRequest -Uri "https://github.com" -OutFile "yt-dlp.exe"
+        
+        # Map choice to height format string
+        $choice = "${{ github.event.inputs.resolution }}"
+        if ($choice -eq "4K (2160p)") { $height = "2160" }
+        elseif ($choice -eq "1080p") { $height = "1080" }
+        elseif ($choice -eq "720p") { $height = "720" }
+        else { $height = "144" }
+        
+        # Download video at or below selected resolution with best audio
+        .\yt-dlp.exe -f "bv*[height<=$height][ext=mp4]+ba[ext=m4a]/b[height<=$height][ext=mp4]/bv*[height<=$height]+ba/b[height<=$height]" "${{ github.event.inputs.video_url }}" -o "video.mp4"
+        
+    - name: Upload Video Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: youtube-video-${{ github.event.inputs.resolution }}
+        path: video.mp4
+        retention-days: 1
