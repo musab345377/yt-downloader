@@ -46,18 +46,20 @@ def index():
 def download_video(background_tasks: BackgroundTasks, url: str = Form(...), resolution: str = Form(...)):
     out_filename = f"video_{resolution}p.mp4"
     
-       ydl_opts = {
+    ydl_opts = {
         'format': f'bv*[height<={resolution}][ext=mp4]+ba[ext=m4a]/b[height<={resolution}][ext=mp4]/b',
         'outtmpl': out_filename,
         'quiet': True,
+        'nocheckcertificate': True,
+        'ignoreerrors': False,
+        'logtostderr': False,
         'extractor_args': {
             'youtube': {
-                'client': ['ios'],
+                'client': ['web,android'],
                 'skip': ['dash', 'hls']
             }
         }
     }
-
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
