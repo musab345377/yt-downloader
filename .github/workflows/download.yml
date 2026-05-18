@@ -25,7 +25,7 @@ jobs:
     steps:
     - name: Download Video
       run: |
-        # Download yt-dlp executable
+        # Download explicit 64-bit Windows release of yt-dlp
         Invoke-WebRequest -Uri "https://github.com" -OutFile "yt-dlp.exe"
         
         # Map choice to height format string
