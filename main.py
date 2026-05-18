@@ -48,10 +48,18 @@ def download_video(background_tasks: BackgroundTasks, url: str = Form(...), reso
     # Unique temporary title structure to support multiple users simultaneously
     out_filename = f"video_{resolution}p.mp4"
     
-    ydl_opts = {
+       ydl_opts = {
         'format': f'bv*[height<={resolution}][ext=mp4]+ba[ext=m4a]/b[height<={resolution}][ext=mp4]/b',
         'outtmpl': out_filename,
-        'quiet': True
+        'quiet': True,
+        'extractor_args': {
+            'youtube': {
+                'client': ['android'],
+                'skip': ['dash', 'hls']
+            }
+        }
+    }
+
     }
     
     try:
