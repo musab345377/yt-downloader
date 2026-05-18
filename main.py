@@ -6,7 +6,6 @@ import yt_dlp
 
 app = FastAPI()
 
-# Simple web interface built natively into the python file
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
@@ -45,10 +44,9 @@ def index():
 
 @app.post("/download")
 def download_video(background_tasks: BackgroundTasks, url: str = Form(...), resolution: str = Form(...)):
-    # Unique temporary title structure to support multiple users simultaneously
     out_filename = f"video_{resolution}p.mp4"
     
-       ydl_opts = {
+    ydl_opts = {
         'format': f'bv*[height<={resolution}][ext=mp4]+ba[ext=m4a]/b[height<={resolution}][ext=mp4]/b',
         'outtmpl': out_filename,
         'quiet': True,
@@ -59,15 +57,12 @@ def download_video(background_tasks: BackgroundTasks, url: str = Form(...), reso
             }
         }
     }
-
-    }
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
         
         if os.path.exists(out_filename):
-            # Clean up server space immediately after sending the file back
             background_tasks.add_task(remove_file, out_filename)
             return FileResponse(path=out_filename, filename=out_filename, media_type='video/mp4')
         else:
